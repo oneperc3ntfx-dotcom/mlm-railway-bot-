@@ -12,8 +12,11 @@ def rupiah(x):
 def run_daily():
     service = get_service()
 
+    # DATA TRANSAKSI
     raw_data = read_sheet(service, config.GOOGLE_SHEET_ID, config.DATA_SHEET)
-    raw_db = read_sheet(service, config.GOOGLE_SHEET_ID, config.DB_SHEET)
+
+    # DB REFERRAL (PENTING: pakai OWNER SHEET, bukan DB_SHEET)
+    raw_db = read_sheet(service, config.GOOGLE_SHEET_ID, config.OWNER_SHEET)
 
     data = clean_transactions(raw_data)
     db = load_db(raw_db)
@@ -22,7 +25,7 @@ def run_daily():
 
     owner, class1, class2 = run_engine(data, db, today)
 
-    # OWNER
+    # OWNER SHEET
     owner_rows = [[today, k, v["count"], rupiah(v["omset"])]
                   for k, v in owner.items()]
     write_sheet(service, config.GOOGLE_SHEET_ID, config.OWNER_SHEET, owner_rows)
