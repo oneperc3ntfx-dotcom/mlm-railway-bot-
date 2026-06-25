@@ -1,68 +1,61 @@
 from collections import defaultdict
 
-
 def clean_transactions(rows):
     data = []
 
     for r in rows:
-        if not r:
+        if not r or r[0].upper().startswith("TANGGAL"):
             continue
 
-        if str(r[0]).startswith("TANGGAL"):
+        if len(r) < 7:
             continue
 
         try:
-            harga = int(str(r[3]).replace(",", ""))
-            date = r[4].split(" ")[0]
-            referral = r[6]
+            data.append({
+                "username": r[0],
+                "paket": r[2],
+                "harga": float(r[3]),
+                "join_date": r[4][:10],
+                "referral": r[6]
+            })
         except:
             continue
-
-        if not referral:
-            continue
-
-        data.append({
-            "date": date,
-            "referral": referral,
-            "harga": harga
-        })
 
     return data
 
 
-def run_engine(data, db, target_date):
+def run_engine(data, db, today):
+
     owner = defaultdict(lambda: {"count": 0, "omset": 0})
     class1 = defaultdict(lambda: {"count": 0, "own": 0, "downline": 0})
     class2 = defaultdict(lambda: {"count": 0, "komisi": 0})
 
     for d in data:
-        if d["date"] != target_date:
+        if today not in d["join_date"]:
             continue
 
         ref = d["referral"]
-        price = d["harga"]
+        harga = d["harga"]
 
         if ref not in db:
             continue
 
-        cls = db[ref]["class"]
+        role = db[ref]["role"]
         sponsor = db[ref]["sponsor"]
 
-        # OWNER
+        # ===== OWNER =====
         owner[ref]["count"] += 1
-        owner[ref]["omset"] += price
+        owner[ref]["omset"] += harga
 
-        # CLASS 2
-        if cls.lower() == "class 2":
-            class2[ref]["count"] += 1
-            class2[ref]["komisi"] += price
-
-            if sponsor in db:
-                class1[sponsor]["downline"] += price
-
-        # CLASS 1
-        if cls.lower() == "class 1":
+        # ===== CLASS 1 =====
+        if role == "Class 1":
             class1[ref]["count"] += 1
-            class1[ref]["own"] += price
+            class1[ref]["own"] += harga * 0.3
+            class1[ref]["downline"] += harga * 0.2
+
+        # ===== CLASS 2 =====
+        elif role == "Class 2":
+            class2[ref]["count"] += 1
+            class2[ref]["komisi"] += harga * 0.3
 
     return owner, class1, class2
