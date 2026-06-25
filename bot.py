@@ -1,26 +1,17 @@
-from sheets import get_service, read_sheet
+from sheets import get_service, read_sheet, safe_range
 import config
-
-
-def gs_range(sheet_name, cell_range):
-    # SAFE: handle sheet name dengan spasi / karakter khusus
-    return f"'{sheet_name}'!{cell_range}"
 
 
 def clean_transactions(raw_rows):
     clean_data = []
 
     for row in raw_rows:
-
-        # skip empty row
         if not row:
             continue
 
-        # skip header
         if str(row[0]).strip().upper().startswith("TANGGAL"):
             continue
 
-        # minimal kolom A-G
         if len(row) < 7:
             continue
 
@@ -31,15 +22,12 @@ def clean_transactions(raw_rows):
         join_date = str(row[4]).strip()
         referral = str(row[6]).strip()
 
-        # skip invalid username
         if not username or username.lower() == "tidak ada username":
             continue
 
-        # skip empty referral
         if not referral:
             continue
 
-        # safe convert harga
         try:
             harga_clean = float(harga.replace(",", "").replace(".", "")) if harga else 0
         except:
@@ -60,15 +48,14 @@ def clean_transactions(raw_rows):
 def run_bot():
     service = get_service()
 
-    SHEET_NAME = "HASIL REFF GRUP SIGNAL"
+    sheet_name = "HASIL REFF GRUP SIGNAL"
 
-    # SAFE RANGE (FIX UTAMA DI SINI)
-    range_ = gs_range(SHEET_NAME, "A:G")
+    range_name = safe_range(sheet_name, "A:G")
 
     raw = read_sheet(
         service,
         config.GOOGLE_SHEET_ID,
-        range_
+        range_name
     )
 
     data = clean_transactions(raw)
@@ -76,7 +63,6 @@ def run_bot():
     print("TOTAL RAW:", len(raw))
     print("TOTAL CLEAN:", len(data))
 
-    # debug sample
     for d in data[:5]:
         print(d)
 
