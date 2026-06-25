@@ -1,4 +1,4 @@
-from sheets import get_service, read_sheet, safe_range
+from sheets import get_service, read_sheet
 import config
 
 
@@ -48,14 +48,11 @@ def clean_transactions(raw_rows):
 def run_bot():
     service = get_service()
 
-    sheet_name = "HASIL REFF GRUP SIGNAL"
-
-    range_name = safe_range(sheet_name, "A:G")
-
+    # ✅ FIX FINAL (INI YANG BENAR)
     raw = read_sheet(
         service,
         config.GOOGLE_SHEET_ID,
-        range_name
+        "HASIL REFF GRUP SIGNAL!A:G"
     )
 
     data = clean_transactions(raw)
