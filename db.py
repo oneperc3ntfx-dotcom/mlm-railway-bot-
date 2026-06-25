@@ -5,12 +5,12 @@ def load_db(raw):
         if len(row) < 4:
             continue
 
-        referral = row[0]
-        role = row[1]
-        sponsor = row[2] if len(row) > 2 else "-"
+        referral = row[0].strip()
+        kelas = row[1].strip()
+        sponsor = row[2].strip()
 
         db[referral] = {
-            "role": role,
+            "class": kelas,
             "sponsor": sponsor
         }
 
