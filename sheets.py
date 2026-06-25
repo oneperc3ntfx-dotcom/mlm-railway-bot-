@@ -2,19 +2,26 @@ from googleapiclient.discovery import build
 from google.oauth2 import service_account
 import config
 
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+
 
 def get_service():
     creds = service_account.Credentials.from_service_account_info(
         {
             "type": "service_account",
             "client_email": config.SERVICE_EMAIL,
-            "private_key": config.PRIVATE_KEY,
+            "private_key": config.PRIVATE_KEY.replace("\\n", "\n"),
             "token_uri": "https://oauth2.googleapis.com/token"
         },
         scopes=SCOPES
     )
+
     return build("sheets", "v4", credentials=creds)
+
+
+# ✅ helper penting (FIX UTAMA)
+def safe_range(sheet_name, cell_range):
+    return f"'{sheet_name}'!{cell_range}"
 
 
 def read_sheet(service, sheet_id, range_name):
@@ -22,6 +29,7 @@ def read_sheet(service, sheet_id, range_name):
         spreadsheetId=sheet_id,
         range=range_name
     ).execute()
+
     return result.get("values", [])
 
 
