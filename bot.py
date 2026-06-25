@@ -48,11 +48,10 @@ def clean_transactions(raw_rows):
 def run_bot():
     service = get_service()
 
-    # ✅ FIX FINAL (INI YANG BENAR)
     raw = read_sheet(
         service,
         config.GOOGLE_SHEET_ID,
-        "HASIL REFF GRUP SIGNAL!A:G"
+        "data!A:G"
     )
 
     data = clean_transactions(raw)
