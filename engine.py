@@ -53,8 +53,8 @@ def run_engine(data, db, today):
             if sponsor in class1:
                 class1[sponsor]["downline"] += harga * 0.2
 
-        # OWNER
-        elif level == "OWNER":
+        # yuri
+        elif level == "yuri":
             owner[ref]["count"] += 1
             owner[ref]["omset"] += harga
 
