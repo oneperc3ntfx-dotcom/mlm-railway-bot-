@@ -15,7 +15,6 @@ def get_service():
         },
         scopes=SCOPES
     )
-
     return build("sheets", "v4", credentials=creds)
 
 
@@ -27,7 +26,6 @@ def read_sheet(service, sheet_id, range_name):
 
 
 def write_sheet(service, sheet_id, range_name, values):
-    # clear dulu biar tidak duplicate
     service.spreadsheets().values().clear(
         spreadsheetId=sheet_id,
         range=range_name,
