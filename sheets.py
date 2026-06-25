@@ -22,7 +22,7 @@ def read_sheet(service, sheet_id, sheet_name):
     sheet_name = str(sheet_name).strip()
 
     # FIX IMPORTANT: safe format
-    range_name = f"{sheet_name}!A:Z"
+    range_name = f"{sheet_name}!A1:Z1000"
 
     result = service.spreadsheets().values().get(
         spreadsheetId=sheet_id,
@@ -37,7 +37,7 @@ def write_sheet(service, sheet_id, sheet_name, values):
 
     service.spreadsheets().values().append(
         spreadsheetId=sheet_id,
-        range=f"{sheet_name}!A:Z",
+        range=f"{sheet_name}!A1:Z1000",
         valueInputOption="RAW",
         insertDataOption="INSERT_ROWS",
         body={"values": values}
