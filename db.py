@@ -1,16 +1,16 @@
-def load_db(rows):
+def load_db(raw):
     db = {}
 
-    for r in rows:
-        if len(r) < 3:
+    for row in raw:
+        if len(row) < 4:
             continue
 
-        referral = r[0].strip()
-        cls = r[1].strip()
-        sponsor = r[2].strip()
+        referral = row[0]
+        role = row[1]
+        sponsor = row[2] if len(row) > 2 else "-"
 
         db[referral] = {
-            "class": cls,
+            "role": role,
             "sponsor": sponsor
         }
 
