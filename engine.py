@@ -1,21 +1,19 @@
 from collections import defaultdict
 
-def clean_transactions(rows):
+def clean_transactions(raw):
     data = []
 
-    for r in rows:
-        if not r or r[0].upper().startswith("TANGGAL"):
-            continue
-
+    for r in raw:
         if len(r) < 7:
             continue
 
         try:
             data.append({
                 "username": r[0],
+                "user_id": r[1],
                 "paket": r[2],
-                "harga": float(r[3]),
-                "join_date": r[4][:10],
+                "harga": float(str(r[3]).replace(".", "").replace(",", "")),
+                "tanggal": r[4],
                 "referral": r[6]
             })
         except:
@@ -31,8 +29,6 @@ def run_engine(data, db, today):
     class2 = defaultdict(lambda: {"count": 0, "komisi": 0})
 
     for d in data:
-        if today not in d["join_date"]:
-            continue
 
         ref = d["referral"]
         harga = d["harga"]
@@ -40,22 +36,26 @@ def run_engine(data, db, today):
         if ref not in db:
             continue
 
-        role = db[ref]["role"]
+        level = db[ref]["class"]
         sponsor = db[ref]["sponsor"]
 
-        # ===== OWNER =====
-        owner[ref]["count"] += 1
-        owner[ref]["omset"] += harga
-
-        # ===== CLASS 1 =====
-        if role == "Class 1":
-            class1[ref]["count"] += 1
-            class1[ref]["own"] += harga * 0.3
-            class1[ref]["downline"] += harga * 0.2
-
-        # ===== CLASS 2 =====
-        elif role == "Class 2":
+        # CLASS 2
+        if level == "Class 2":
             class2[ref]["count"] += 1
             class2[ref]["komisi"] += harga * 0.3
+
+        # CLASS 1
+        elif level == "Class 1":
+            class1[ref]["count"] += 1
+            class1[ref]["own"] += harga * 0.3
+
+            # sponsor income
+            if sponsor in class1:
+                class1[sponsor]["downline"] += harga * 0.2
+
+        # OWNER
+        elif level == "OWNER":
+            owner[ref]["count"] += 1
+            owner[ref]["omset"] += harga
 
     return owner, class1, class2
