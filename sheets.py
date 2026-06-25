@@ -19,7 +19,9 @@ def get_service():
 
 
 def read_sheet(service, sheet_id, sheet_name):
-    # FIX IMPORTANT: jangan pakai quote manual
+    sheet_name = str(sheet_name).strip()
+
+    # FIX IMPORTANT: safe format
     range_name = f"{sheet_name}!A:Z"
 
     result = service.spreadsheets().values().get(
@@ -31,15 +33,12 @@ def read_sheet(service, sheet_id, sheet_name):
 
 
 def write_sheet(service, sheet_id, sheet_name, values):
-    service.spreadsheets().values().clear(
+    sheet_name = str(sheet_name).strip()
+
+    service.spreadsheets().values().append(
         spreadsheetId=sheet_id,
         range=f"{sheet_name}!A:Z",
-        body={}
-    ).execute()
-
-    service.spreadsheets().values().update(
-        spreadsheetId=sheet_id,
-        range=f"{sheet_name}!A1",
         valueInputOption="RAW",
+        insertDataOption="INSERT_ROWS",
         body={"values": values}
     ).execute()
